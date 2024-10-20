@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +38,16 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        // 添加元素到堆的末尾
+        self.items.push(value);
+        self.count += 1;
+        // 上浮新添加的元素以维护堆的性质
+        let mut idx = self.count;
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[self.parent_idx(idx)]) {
+            let parent_idx = self.parent_idx(idx);
+            self.items.swap(idx, parent_idx);
+            idx = parent_idx;
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,8 +68,17 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		//0
+        // 计算最小子节点的索引
+        let left_idx = self.left_child_idx(idx);
+        let right_idx = self.right_child_idx(idx);
+        if right_idx <= self.count && (self.comparator)(&self.items[right_idx], &self.items[left_idx]) {
+            right_idx
+        } else {
+            left_idx
+        }
     }
+    
 }
 
 impl<T> Heap<T>
@@ -79,13 +98,35 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Clone,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+		//None
+        if self.is_empty() {
+            None
+        } else {
+            // 返回堆顶元素
+            let result = self.items[1].clone();
+            self.items[1] = self.items.swap_remove(self.count);
+            self.count -= 1;
+            // 将最后一个元素移动到堆顶，并下沉以维护堆的性质
+            if !self.is_empty() {
+                let mut idx = 1;
+                while self.children_present(idx) {
+                    let smallest_child_idx = self.smallest_child_idx(idx);
+                    if (self.comparator)(&self.items[smallest_child_idx], &self.items[idx]) {
+                        self.items.swap(smallest_child_idx, idx);
+                        idx = smallest_child_idx;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            Some(result)
+        }
     }
 }
 

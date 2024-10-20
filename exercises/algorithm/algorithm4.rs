@@ -3,7 +3,7 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
+
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -51,12 +51,20 @@ where
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
         //TODO
+        // 如果根节点不存在，则创建根节点
+        if self.root.is_none() {
+            self.root = Some(Box::new(TreeNode::new(value)));
+        } else {
+            // 递归地在树中插入节点
+            self.root.as_mut().unwrap().insert(value);
+        }
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
         //TODO
-        true
+        self.root.as_ref().map_or(false, |node| node.search(value))
+        //true
     }
 }
 
@@ -67,6 +75,35 @@ where
     // Insert a node into the tree
     fn insert(&mut self, value: T) {
         //TODO
+        match value.cmp(&self.value) {
+            Ordering::Less => {
+                // 如果值小于当前节点，则尝试在左子树中插入
+                if let Some(left) = &mut self.left {
+                    left.insert(value);
+                } else {
+                    // 如果左子树不存在，则创建新的节点
+                    self.left = Some(Box::new(TreeNode::new(value)));
+                }
+            }
+            Ordering::Greater => {
+                // 如果值大于当前节点，则尝试在右子树中插入
+                if let Some(right) = &mut self.right {
+                    right.insert(value);
+                } else {
+                    // 如果右子树不存在，则创建新的节点
+                    self.right = Some(Box::new(TreeNode::new(value)));
+                }
+            }
+            // 如果值等于当前节点，则不进行插入（不允许重复值）
+            Ordering::Equal => {}
+        }
+    }
+    fn search(&self, value: T) -> bool {
+        match value.cmp(&self.value) {
+            Ordering::Less => self.left.as_ref().map_or(false, |node| node.search(value)),
+            Ordering::Greater => self.right.as_ref().map_or(false, |node| node.search(value)),
+            Ordering::Equal => true,
+        }
     }
 }
 

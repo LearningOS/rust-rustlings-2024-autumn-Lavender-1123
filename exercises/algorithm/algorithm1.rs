@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -70,14 +70,60 @@ impl<T> LinkedList<T> {
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
+	where
+        T:Ord + Copy,
+    {
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+		//Self {
+        //    length: 0,
+        //    start: None,
+        //    end: None,
+        //}
+
+
+        let mut merged_list = LinkedList::new();
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+
+        while current_a.is_some() && current_b.is_some() {
+            let node_a = current_a.unwrap();
+            let node_b = current_b.unwrap();
+            let val_a = unsafe { (*node_a.as_ptr()).val };
+            let val_b = unsafe { (*node_b.as_ptr()).val };
+
+            if val_a <= val_b {
+                merged_list.append_node(node_a);
+                current_a = unsafe { (*node_a.as_ptr()).next };
+            } else {
+                merged_list.append_node(node_b);
+                current_b = unsafe { (*node_b.as_ptr()).next };
+            }
         }
+
+        // 将剩余的节点添加到合并后的链表中
+        while let Some(node) = current_a {
+            merged_list.append_node(node);
+            current_a = unsafe { (*node.as_ptr()).next };
+        }
+
+        while let Some(node) = current_b {
+            merged_list.append_node(node);
+            current_b = unsafe { (*node.as_ptr()).next };
+        }
+        merged_list
 	}
+    fn append_node(&mut self, node: NonNull<Node<T>>) {
+        let new_node = unsafe { Box::from_raw(node.as_ptr()) };
+        if let Some(end) = self.end {
+            unsafe { (*end.as_ptr()).next = Some(node) };
+        } else {
+            self.start = Some(node);
+        }
+        self.end = Some(node);
+        self.length += 1;
+        // 使用 forget 防止节点被 drop
+        std::mem::forget(new_node);
+    }
 }
 
 impl<T> Display for LinkedList<T>

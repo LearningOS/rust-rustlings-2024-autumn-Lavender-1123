@@ -3,7 +3,7 @@
 	This problem requires you to implement a basic BFS algorithm
 */
 
-//I AM NOT DONE
+
 use std::collections::VecDeque;
 
 // Define a graph
@@ -29,9 +29,34 @@ impl Graph {
     fn bfs_with_return(&self, start: usize) -> Vec<usize> {
         
 		//TODO
+        //let mut visit_order = vec![];
+        let mut queue = VecDeque::new();
+        // 创建一个向量用于记录访问顺序
+        let mut visit_order = Vec::new();
+        // 创建一个向量用于记录节点是否被访问过
+        let mut visited = vec![false; self.adj.len()];
 
-        let mut visit_order = vec![];
+        // 将起始节点加入队列，并标记为已访问
+        queue.push_back(start);
+        visited[start] = true;
+
+        // 当队列不为空时，执行BFS
+        while let Some(node) = queue.pop_front() {
+            // 将当前节点添加到访问顺序中
+            visit_order.push(node);
+            // 遍历当前节点的所有邻接节点
+            for &neighbor in &self.adj[node] {
+                // 如果邻接节点未被访问过
+                if !visited[neighbor] {
+                    // 将邻接节点加入队列
+                    queue.push_back(neighbor);
+                    // 并标记为已访问
+                    visited[neighbor] = true;
+                }
+            }
+        }
         visit_order
+        
     }
 }
 
